@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>資料表瀏覽</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 30px;
+    }
+    .table-responsive {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    th, td {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="container">
+  <h2 class="mb-4">🗂 資料表瀏覽工具</h2>
+
+  <!-- 資料表選單 -->
+  <form method="get" class="mb-3 row g-3">
+    <div class="col-auto">
+      <select name="table" class="form-select" onchange="this.form.submit()">
+        {% for name in table_names %}
+        <option value="{{ name }}" {% if name == selected_table %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>📊 資料表：<span class="text-primary">{{ selected_table }}</span></h5>
+    <div>
+      <a href="{{ url_for('index', table=selected_table, page=page-1) }}"
+         class="btn btn-outline-secondary btn-sm {% if page <= 1 %}disabled{% endif %}">
+        上一頁
+      </a>
+      <span class="mx-2">頁數：{{ page }}</span>
+      <a href="{{ url_for('index', table=selected_table, page=page+1) }}"
+         class="btn btn-outline-secondary btn-sm">
+        下一頁
+      </a>
+    </div>
+  </div>
+
+  {% if selected_table == 'bigtable' %}
+  <div class="alert alert-warning p-2">
+    僅顯示前 10 個欄位，完整欄位過多已略過（共 500 欄）
+  </div>
+  {% endif %}
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover table-sm align-middle">
+      <thead class="table-dark">
+        <tr>
+          {% for col in columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for col in columns %}
+          <td>{{ row|attr(col) }}</td>
+          {% endfor %}
+          <td>
+            <a href="{{ url_for('update', table_name=selected_table, item_id=row.ID) }}"
+               class="btn btn-sm btn-primary">修改</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
